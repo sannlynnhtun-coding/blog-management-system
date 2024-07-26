@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
+﻿namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
 
 public partial class Author
 {
@@ -13,5 +10,5 @@ public partial class Author
 
     public string? Bio { get; set; }
 
-    public virtual ICollection<Blogpost> Blogposts { get; set; } = new List<Blogpost>();
+    public virtual ICollection<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
 }

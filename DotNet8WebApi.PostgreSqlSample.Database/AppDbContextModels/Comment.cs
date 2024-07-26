@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
+﻿namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
 
 public partial class Comment
 {
@@ -17,5 +14,5 @@ public partial class Comment
 
     public DateTime? CommentDate { get; set; }
 
-    public virtual Blogpost? Post { get; set; }
+    public virtual BlogPost? Post { get; set; }
 }

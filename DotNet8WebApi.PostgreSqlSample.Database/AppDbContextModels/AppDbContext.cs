@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
 
@@ -17,15 +15,11 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Author> Authors { get; set; }
 
-    public virtual DbSet<Blogpost> Blogposts { get; set; }
+    public virtual DbSet<BlogPost> BlogPosts { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Comment> Comments { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=sasa@123");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,11 +39,11 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("name");
         });
 
-        modelBuilder.Entity<Blogpost>(entity =>
+        modelBuilder.Entity<BlogPost>(entity =>
         {
-            entity.HasKey(e => e.PostId).HasName("blogposts_pkey");
+            entity.HasKey(e => e.PostId).HasName("blog_posts_pkey");
 
-            entity.ToTable("blogposts");
+            entity.ToTable("blog_posts");
 
             entity.Property(e => e.PostId).HasColumnName("post_id");
             entity.Property(e => e.AuthorId).HasColumnName("author_id");
@@ -69,13 +63,13 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("title");
 
-            entity.HasOne(d => d.Author).WithMany(p => p.Blogposts)
+            entity.HasOne(d => d.Author).WithMany(p => p.BlogPosts)
                 .HasForeignKey(d => d.AuthorId)
-                .HasConstraintName("blogposts_author_id_fkey");
+                .HasConstraintName("blog_posts_author_id_fkey");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.Blogposts)
+            entity.HasOne(d => d.Category).WithMany(p => p.BlogPosts)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("blogposts_category_id_fkey");
+                .HasConstraintName("blog_posts_category_id_fkey");
         });
 
         modelBuilder.Entity<Category>(entity =>

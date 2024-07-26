@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
 
-namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
-
-public partial class Blogpost
+public partial class BlogPost
 {
     public int PostId { get; set; }
 
