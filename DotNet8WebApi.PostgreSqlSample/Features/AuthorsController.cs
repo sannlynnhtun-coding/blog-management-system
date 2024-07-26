@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
-using DotNet8WebApi.PostgreSqlSample.Dtos;
-
-namespace BlogAPI.Controllers;
+﻿namespace BlogAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -21,14 +14,18 @@ public class AuthorsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
     {
-        var authors = await _context.Authors.ToListAsync();
+        var authors = await _context.Authors
+            .Include(x=> x.BlogPosts)
+            .ToListAsync();
         return authors.Select(a => a.ToDto()).ToList();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<AuthorDto>> GetAuthor(int id)
     {
-        var author = await _context.Authors.FindAsync(id);
+        var author = await _context.Authors
+            .Include(x=> x.BlogPosts)
+            .FirstOrDefaultAsync(x=> x.AuthorId == id);
 
         if (author == null)
         {
@@ -57,7 +54,7 @@ public class AuthorsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutAuthor(int id, AuthorDto authorDto)
     {
-        if (id != authorDto.AuthorID)
+        if (id != authorDto.AuthorId)
         {
             return BadRequest();
         }

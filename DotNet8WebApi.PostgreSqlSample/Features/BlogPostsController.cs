@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
-using DotNet8WebApi.PostgreSqlSample.Dtos;
-
-namespace DotNet8WebApi.PostgreSqlSample.Features;
+﻿namespace DotNet8WebApi.PostgreSqlSample.Features;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -21,14 +14,20 @@ public class BlogPostsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BlogPostDto>>> GetBlogPosts()
     {
-        var blogPosts = await _context.Blogposts.ToListAsync();
+        var blogPosts = await _context.BlogPosts
+            .Include(x => x.Author)
+            .Include(x => x.Comments)
+            .ToListAsync();
         return blogPosts.Select(bp => bp.ToDto()).ToList();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<BlogPostDto>> GetBlogPost(int id)
     {
-        var blogPost = await _context.Blogposts.FindAsync(id);
+        var blogPost = await _context.BlogPosts
+            .Include(x => x.Author)
+            .Include(x => x.Comments)
+            .FirstOrDefaultAsync(x => x.PostId == id);
 
         if (blogPost == null)
         {
@@ -41,19 +40,19 @@ public class BlogPostsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BlogPostDto>> PostBlogPost(BlogPostDto blogPostDto)
     {
-        var blogPost = new Blogpost
+        var blogPost = new BlogPost
         {
             Title = blogPostDto.Title,
             Content = blogPostDto.Content,
-            AuthorId = blogPostDto.AuthorID,
-            CategoryId = blogPostDto.CategoryID,
+            AuthorId = blogPostDto.AuthorId,
+            CategoryId = blogPostDto.CategoryId,
             PublishedDate = blogPostDto.PublishedDate,
             LastUpdatedDate = blogPostDto.LastUpdatedDate,
             IsPublished = blogPostDto.IsPublished,
             Tags = blogPostDto.Tags
         };
 
-        _context.Blogposts.Add(blogPost);
+        _context.BlogPosts.Add(blogPost);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetBlogPost), new { id = blogPost.PostId }, blogPost.ToDto());
@@ -62,12 +61,12 @@ public class BlogPostsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutBlogPost(int id, BlogPostDto blogPostDto)
     {
-        if (id != blogPostDto.PostID)
+        if (id != blogPostDto.PostId)
         {
             return BadRequest();
         }
 
-        var blogPost = await _context.Blogposts.FindAsync(id);
+        var blogPost = await _context.BlogPosts.FindAsync(id);
         if (blogPost == null)
         {
             return NotFound();
@@ -75,8 +74,8 @@ public class BlogPostsController : ControllerBase
 
         blogPost.Title = blogPostDto.Title;
         blogPost.Content = blogPostDto.Content;
-        blogPost.AuthorId = blogPostDto.AuthorID;
-        blogPost.CategoryId = blogPostDto.CategoryID;
+        blogPost.AuthorId = blogPostDto.AuthorId;
+        blogPost.CategoryId = blogPostDto.CategoryId;
         blogPost.PublishedDate = blogPostDto.PublishedDate;
         blogPost.LastUpdatedDate = blogPostDto.LastUpdatedDate;
         blogPost.IsPublished = blogPostDto.IsPublished;
@@ -91,13 +90,13 @@ public class BlogPostsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBlogPost(int id)
     {
-        var blogPost = await _context.Blogposts.FindAsync(id);
+        var blogPost = await _context.BlogPosts.FindAsync(id);
         if (blogPost == null)
         {
             return NotFound();
         }
 
-        _context.Blogposts.Remove(blogPost);
+        _context.BlogPosts.Remove(blogPost);
         await _context.SaveChangesAsync();
 
         return NoContent();

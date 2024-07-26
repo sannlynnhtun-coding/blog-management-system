@@ -1,11 +1,4 @@
-﻿using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
-using DotNet8WebApi.PostgreSqlSample.Dtos;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace DotNet8WebApi.PostgreSqlSample.Features;
+﻿namespace DotNet8WebApi.PostgreSqlSample.Features;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -55,7 +48,7 @@ public class CategoriesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutCategory(int id, CategoryDto categoryDto)
     {
-        if (id != categoryDto.CategoryID)
+        if (id != categoryDto.CategoryId)
         {
             return BadRequest();
         }

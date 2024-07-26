@@ -1,6 +1,4 @@
-﻿using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
-
-namespace DotNet8WebApi.PostgreSqlSample.Dtos;
+﻿namespace DotNet8WebApi.PostgreSqlSample.Dtos;
 
 public static class MappingExtensions
 {
@@ -8,10 +6,11 @@ public static class MappingExtensions
     {
         return new AuthorDto
         {
-            AuthorID = author.AuthorId,
+            AuthorId = author.AuthorId,
             Name = author.Name,
             Email = author.Email,
-            Bio = author.Bio
+            Bio = author.Bio,
+            Blogs = author.BlogPosts.Select(x=> x.ToDto()).ToList()
         };
     }
 
@@ -19,24 +18,37 @@ public static class MappingExtensions
     {
         return new CategoryDto
         {
-            CategoryID = category.CategoryId,
+            CategoryId = category.CategoryId,
             CategoryName = category.CategoryName
         };
     }
 
-    public static BlogPostDto ToDto(this Blogpost blogPost)
+    public static BlogPostDto ToDto(this BlogPost blogPost)
     {
         return new BlogPostDto
         {
-            PostID = blogPost.PostId,
+            PostId = blogPost.PostId,
             Title = blogPost.Title,
             Content = blogPost.Content,
-            AuthorID = Convert.ToInt32(blogPost.AuthorId),
-            CategoryID = Convert.ToInt32(blogPost.CategoryId),
+            AuthorId = Convert.ToInt32(blogPost.AuthorId),
+            CategoryId = Convert.ToInt32(blogPost.CategoryId),
             PublishedDate = Convert.ToDateTime(blogPost.PublishedDate),
             LastUpdatedDate = Convert.ToDateTime(blogPost.LastUpdatedDate),
             IsPublished = Convert.ToBoolean(blogPost.IsPublished),
-            Tags = blogPost.Tags
+            Tags = blogPost.Tags,
+            Author = blogPost.Author.ToAuthorDto(),
+            Comments = blogPost.Comments.Select(x=> x.ToDto()).ToList()
+        };
+    }
+
+    public static BlogPostAuthorDto ToAuthorDto(this Author author)
+    {
+        return new BlogPostAuthorDto
+        {
+            AuthorId = author.AuthorId,
+            Name = author.Name,
+            Email = author.Email,
+            Bio = author.Bio,
         };
     }
 
@@ -44,8 +56,8 @@ public static class MappingExtensions
     {
         return new CommentDto
         {
-            CommentID = comment.CommentId,
-            PostID = Convert.ToInt32(comment.PostId),
+            CommentId = comment.CommentId,
+            PostId = Convert.ToInt32(comment.PostId),
             CommenterName = comment.CommenterName,
             CommenterEmail = comment.CommenterEmail,
             CommentText = comment.CommentText,

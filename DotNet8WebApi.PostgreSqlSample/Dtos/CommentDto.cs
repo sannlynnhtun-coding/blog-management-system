@@ -2,8 +2,8 @@
 
 public class CommentDto
 {
-    public int CommentID { get; set; }
-    public int PostID { get; set; }
+    public int CommentId { get; set; }
+    public int PostId { get; set; }
     public string CommenterName { get; set; }
     public string CommenterEmail { get; set; }
     public string CommentText { get; set; }

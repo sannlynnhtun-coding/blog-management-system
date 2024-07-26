@@ -1,11 +1,4 @@
-﻿using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
-using DotNet8WebApi.PostgreSqlSample.Dtos;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace DotNet8WebApi.PostgreSqlSample.Features;
+﻿namespace DotNet8WebApi.PostgreSqlSample.Features;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -43,7 +36,7 @@ public class CommentsController : ControllerBase
     {
         var comment = new Comment
         {
-            PostId = commentDto.PostID,
+            PostId = commentDto.PostId,
             CommenterName = commentDto.CommenterName,
             CommenterEmail = commentDto.CommenterEmail,
             CommentText = commentDto.CommentText,
@@ -59,7 +52,7 @@ public class CommentsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutComment(int id, CommentDto commentDto)
     {
-        if (id != commentDto.CommentID)
+        if (id != commentDto.CommentId)
         {
             return BadRequest();
         }
@@ -70,7 +63,7 @@ public class CommentsController : ControllerBase
             return NotFound();
         }
 
-        comment.PostId = commentDto.PostID;
+        comment.PostId = commentDto.PostId;
         comment.CommenterName = commentDto.CommenterName;
         comment.CommenterEmail = commentDto.CommenterEmail;
         comment.CommentText = commentDto.CommentText;
