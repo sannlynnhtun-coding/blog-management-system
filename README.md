@@ -88,39 +88,39 @@ The API provides the following endpoints:
 
 ```sql
 CREATE TABLE Authors (
-    AuthorID SERIAL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) NOT NULL,
-    Bio TEXT
+                         author_id SERIAL PRIMARY KEY,
+                         name VARCHAR(255) NOT NULL,
+                         email VARCHAR(255) NOT NULL,
+                         bio TEXT
 );
 
 CREATE TABLE Categories (
-    CategoryID SERIAL PRIMARY KEY,
-    CategoryName VARCHAR(255) NOT NULL
+                            category_id SERIAL PRIMARY KEY,
+                            category_name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE BlogPosts (
-    PostID SERIAL PRIMARY KEY,
-    Title VARCHAR(255) NOT NULL,
-    Content TEXT NOT NULL,
-    AuthorID INT,
-    CategoryID INT,
-    PublishedDate TIMESTAMP,
-    LastUpdatedDate TIMESTAMP,
-    IsPublished BOOLEAN,
-    Tags VARCHAR(255),
-    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID),
-    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+CREATE TABLE Blog_Posts (
+                            post_id SERIAL PRIMARY KEY,
+                            title VARCHAR(255) NOT NULL,
+                            content TEXT NOT NULL,
+                            author_id INT,
+                            category_id INT,
+                            published_date TIMESTAMP,
+                            last_updated_date TIMESTAMP,
+                            is_published BOOLEAN,
+                            tags VARCHAR(255),
+                            FOREIGN KEY (author_id) REFERENCES Authors(author_id),
+                            FOREIGN KEY (category_id) REFERENCES Categories(category_id)
 );
 
 CREATE TABLE Comments (
-    CommentID SERIAL PRIMARY KEY,
-    PostID INT,
-    CommenterName VARCHAR(255),
-    CommenterEmail VARCHAR(255),
-    CommentText TEXT,
-    CommentDate TIMESTAMP,
-    FOREIGN KEY (PostID) REFERENCES BlogPosts(PostID)
+                          comment_id SERIAL PRIMARY KEY,
+                          post_id INT,
+                          commenter_name VARCHAR(255),
+                          commenter_email VARCHAR(255),
+                          comment_text TEXT,
+                          comment_date TIMESTAMP,
+                          FOREIGN KEY (post_id) REFERENCES Blog_Posts(post_id)
 );
 ```
 
