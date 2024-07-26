@@ -1,5 +1,90 @@
 # DotNet8WebApi.PostgreSqlSample\
 
+## Overview
+
+BlogAPI is a RESTful Web API built using ASP.NET Core, Entity Framework Core, and PostgreSQL. It provides a platform for managing authors, categories, blog posts, and comments. This API supports basic CRUD (Create, Read, Update, Delete) operations for all the entities involved, allowing for comprehensive blog management.
+
+## Features
+
+- **Authors Management**: Create, read, update, and delete author information.
+- **Categories Management**: Manage categories to classify blog posts.
+- **Blog Posts Management**: Create and manage blog posts, including assigning authors and categories, setting publish dates, and more.
+- **Comments Management**: Handle comments on blog posts, including comment creation, retrieval, and deletion.
+
+## Technologies Used
+
+- **ASP.NET Core**: For building the Web API.
+- **Entity Framework Core**: For ORM (Object Relational Mapping) to interact with the PostgreSQL database.
+- **PostgreSQL**: As the database system.
+
+## Database Schema
+
+The database schema consists of the following tables:
+
+1. **Authors**
+    - `AuthorID`: Primary key.
+    - `Name`: The name of the author.
+    - `Email`: The email of the author.
+    - `Bio`: A short biography of the author.
+
+2. **Categories**
+    - `CategoryID`: Primary key.
+    - `CategoryName`: The name of the category.
+
+3. **BlogPosts**
+    - `PostID`: Primary key.
+    - `Title`: The title of the blog post.
+    - `Content`: The content of the blog post.
+    - `AuthorID`: Foreign key referencing `Authors`.
+    - `CategoryID`: Foreign key referencing `Categories`.
+    - `PublishedDate`: The date the post was published.
+    - `LastUpdatedDate`: The date the post was last updated.
+    - `IsPublished`: Boolean flag indicating if the post is published.
+    - `Tags`: Tags associated with the post.
+
+4. **Comments**
+    - `CommentID`: Primary key.
+    - `PostID`: Foreign key referencing `BlogPosts`.
+    - `CommenterName`: The name of the commenter.
+    - `CommenterEmail`: The email of the commenter.
+    - `CommentText`: The comment text.
+    - `CommentDate`: The date the comment was made.
+
+## API Endpoints
+
+The API provides the following endpoints:
+
+- **Authors**
+    - `GET /api/authors`
+    - `GET /api/authors/{id}`
+    - `POST /api/authors`
+    - `PUT /api/authors/{id}`
+    - `DELETE /api/authors/{id}`
+
+- **Categories**
+    - `GET /api/categories`
+    - `GET /api/categories/{id}`
+    - `POST /api/categories`
+    - `PUT /api/categories/{id}`
+    - `DELETE /api/categories/{id}`
+
+- **BlogPosts**
+    - `GET /api/blogposts`
+    - `GET /api/blogposts/{id}`
+    - `POST /api/blogposts`
+    - `PUT /api/blogposts/{id}`
+    - `DELETE /api/blogposts/{id}`
+
+- **Comments**
+    - `GET /api/comments`
+    - `GET /api/comments/{id}`
+    - `POST /api/comments`
+    - `PUT /api/comments/{id}`
+    - `DELETE /api/comments/{id}`
+
+---
+
+
 ```
 
 dotnet ef dbcontext scaffold "Host=localhost;Database=postgres;Username=postgres;Password=sasa@123" Npgsql.EntityFrameworkCore.PostgreSQL -o Models -f
