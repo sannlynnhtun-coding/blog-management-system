@@ -84,6 +84,11 @@ The API provides the following endpoints:
 
 ---
 
+### PostgreSQL Docker Installation
+```bash
+docker run --name postgresqlserver -e POSTGRES_PASSWORD=sasa@123 -p 5432:5432 -d postgres
+```
+
 ### Table Script
 
 ```sql
