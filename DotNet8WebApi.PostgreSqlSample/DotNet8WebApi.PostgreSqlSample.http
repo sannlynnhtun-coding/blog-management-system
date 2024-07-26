@@ -1,6 +1,0 @@
-@DotNet8WebApi.PostgreSqlSample_HostAddress = http://localhost:5222
-
-GET {{DotNet8WebApi.PostgreSqlSample_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
