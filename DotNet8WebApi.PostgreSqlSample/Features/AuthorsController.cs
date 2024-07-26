@@ -5,92 +5,91 @@ using System.Threading.Tasks;
 using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
 using DotNet8WebApi.PostgreSqlSample.Dtos;
 
-namespace BlogAPI.Controllers
+namespace BlogAPI.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AuthorsController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthorsController : ControllerBase
+    private readonly AppDbContext _context;
+
+    public AuthorsController(AppDbContext context)
     {
-        private readonly AppDbContext _context;
+        _context = context;
+    }
 
-        public AuthorsController(AppDbContext context)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
+    {
+        var authors = await _context.Authors.ToListAsync();
+        return authors.Select(a => a.ToDto()).ToList();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<AuthorDto>> GetAuthor(int id)
+    {
+        var author = await _context.Authors.FindAsync(id);
+
+        if (author == null)
         {
-            _context = context;
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
+        return author.ToDto();
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<AuthorDto>> PostAuthor(AuthorDto authorDto)
+    {
+        var author = new Author
         {
-            var authors = await _context.Authors.ToListAsync();
-            return authors.Select(a => a.ToDto()).ToList();
+            Name = authorDto.Name,
+            Email = authorDto.Email,
+            Bio = authorDto.Bio
+        };
+
+        _context.Authors.Add(author);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetAuthor), new { id = author.AuthorId }, author.ToDto());
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutAuthor(int id, AuthorDto authorDto)
+    {
+        if (id != authorDto.AuthorID)
+        {
+            return BadRequest();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AuthorDto>> GetAuthor(int id)
+        var author = await _context.Authors.FindAsync(id);
+        if (author == null)
         {
-            var author = await _context.Authors.FindAsync(id);
-
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            return author.ToDto();
+            return NotFound();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<AuthorDto>> PostAuthor(AuthorDto authorDto)
+        author.Name = authorDto.Name;
+        author.Email = authorDto.Email;
+        author.Bio = authorDto.Bio;
+
+        _context.Entry(author).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAuthor(int id)
+    {
+        var author = await _context.Authors.FindAsync(id);
+        if (author == null)
         {
-            var author = new Author
-            {
-                Name = authorDto.Name,
-                Email = authorDto.Email,
-                Bio = authorDto.Bio
-            };
-
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetAuthor), new { id = author.AuthorId }, author.ToDto());
+            return NotFound();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, AuthorDto authorDto)
-        {
-            if (id != authorDto.AuthorID)
-            {
-                return BadRequest();
-            }
+        _context.Authors.Remove(author);
+        await _context.SaveChangesAsync();
 
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            author.Name = authorDto.Name;
-            author.Email = authorDto.Email;
-            author.Bio = authorDto.Bio;
-
-            _context.Entry(author).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAuthor(int id)
-        {
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }
