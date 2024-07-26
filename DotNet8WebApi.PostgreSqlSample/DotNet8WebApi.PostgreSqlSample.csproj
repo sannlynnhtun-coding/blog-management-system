@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\" />
+    <ProjectReference Include="..\DotNet8WebApi.PostgreSqlSample.Database\DotNet8WebApi.PostgreSqlSample.Database.csproj" />
   </ItemGroup>
 
 </Project>
