@@ -5,17 +5,17 @@ namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
 
 public partial class Comment
 {
-    public int Commentid { get; set; }
+    public int CommentId { get; set; }
 
-    public int? Postid { get; set; }
+    public int? PostId { get; set; }
 
-    public string? Commentername { get; set; }
+    public string? CommenterName { get; set; }
 
-    public string? Commenteremail { get; set; }
+    public string? CommenterEmail { get; set; }
 
-    public string? Commenttext { get; set; }
+    public string? CommentText { get; set; }
 
-    public DateTime? Commentdate { get; set; }
+    public DateTime? CommentDate { get; set; }
 
     public virtual Blogpost? Post { get; set; }
 }

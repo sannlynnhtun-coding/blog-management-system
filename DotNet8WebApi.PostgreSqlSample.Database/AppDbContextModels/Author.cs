@@ -5,7 +5,7 @@ namespace DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
 
 public partial class Author
 {
-    public int Authorid { get; set; }
+    public int AuthorId { get; set; }
 
     public string Name { get; set; } = null!;
 

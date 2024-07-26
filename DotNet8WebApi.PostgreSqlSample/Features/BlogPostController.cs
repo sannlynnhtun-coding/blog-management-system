@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
+using DotNet8WebApi.PostgreSqlSample.Dtos;
 
 namespace DotNet8WebApi.PostgreSqlSample.Features
 {
@@ -18,63 +19,71 @@ namespace DotNet8WebApi.PostgreSqlSample.Features
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Blogpost>>> GetBlogPosts()
+        public async Task<ActionResult<IEnumerable<BlogPostDto>>> GetBlogPosts()
         {
-            return await _context.Blogposts
-                //.Include(bp => bp.Author)
-                //.Include(bp => bp.Category)
-            .ToListAsync();
+            var blogPosts = await _context.Blogposts.ToListAsync();
+            return blogPosts.Select(bp => bp.ToDto()).ToList();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Blogpost>> GetBlogPost(int id)
+        public async Task<ActionResult<BlogPostDto>> GetBlogPost(int id)
         {
-            var blogPost = await _context.Blogposts
-                .Include(bp => bp.Author)
-                .Include(bp => bp.Category)
-                .FirstOrDefaultAsync(bp => bp.Postid == id);
+            var blogPost = await _context.Blogposts.FindAsync(id);
 
             if (blogPost == null)
             {
                 return NotFound();
             }
-            return blogPost;
+
+            return blogPost.ToDto();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Blogpost>> PostBlogPost(Blogpost blogPost)
+        public async Task<ActionResult<BlogPostDto>> PostBlogPost(BlogPostDto blogPostDto)
         {
+            var blogPost = new Blogpost
+            {
+                Title = blogPostDto.Title,
+                Content = blogPostDto.Content,
+                AuthorId = blogPostDto.AuthorID,
+                CategoryId = blogPostDto.CategoryID,
+                PublishedDate = blogPostDto.PublishedDate,
+                LastUpdatedDate = blogPostDto.LastUpdatedDate,
+                IsPublished = blogPostDto.IsPublished,
+                Tags = blogPostDto.Tags
+            };
+
             _context.Blogposts.Add(blogPost);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBlogPost", new { id = blogPost.Postid }, blogPost);
+            return CreatedAtAction(nameof(GetBlogPost), new { id = blogPost.PostId }, blogPost.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBlogPost(int id, Blogpost blogPost)
+        public async Task<IActionResult> PutBlogPost(int id, BlogPostDto blogPostDto)
         {
-            if (id != blogPost.Postid)
+            if (id != blogPostDto.PostID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(blogPost).State = EntityState.Modified;
+            var blogPost = await _context.Blogposts.FindAsync(id);
+            if (blogPost == null)
+            {
+                return NotFound();
+            }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BlogPostExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            blogPost.Title = blogPostDto.Title;
+            blogPost.Content = blogPostDto.Content;
+            blogPost.AuthorId = blogPostDto.AuthorID;
+            blogPost.CategoryId = blogPostDto.CategoryID;
+            blogPost.PublishedDate = blogPostDto.PublishedDate;
+            blogPost.LastUpdatedDate = blogPostDto.LastUpdatedDate;
+            blogPost.IsPublished = blogPostDto.IsPublished;
+            blogPost.Tags = blogPostDto.Tags;
+
+            _context.Entry(blogPost).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -92,11 +101,6 @@ namespace DotNet8WebApi.PostgreSqlSample.Features
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool BlogPostExists(int id)
-        {
-            return _context.Blogposts.Any(e => e.Postid == id);
         }
     }
 }

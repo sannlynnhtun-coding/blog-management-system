@@ -23,15 +23,19 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Comment> Comments { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=sasa@123");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Author>(entity =>
         {
-            entity.HasKey(e => e.Authorid).HasName("authors_pkey");
+            entity.HasKey(e => e.AuthorId).HasName("authors_pkey");
 
             entity.ToTable("authors");
 
-            entity.Property(e => e.Authorid).HasColumnName("authorid");
+            entity.Property(e => e.AuthorId).HasColumnName("author_id");
             entity.Property(e => e.Bio).HasColumnName("bio");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
@@ -43,21 +47,21 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Blogpost>(entity =>
         {
-            entity.HasKey(e => e.Postid).HasName("blogposts_pkey");
+            entity.HasKey(e => e.PostId).HasName("blogposts_pkey");
 
             entity.ToTable("blogposts");
 
-            entity.Property(e => e.Postid).HasColumnName("postid");
-            entity.Property(e => e.Authorid).HasColumnName("authorid");
-            entity.Property(e => e.Categoryid).HasColumnName("categoryid");
+            entity.Property(e => e.PostId).HasColumnName("post_id");
+            entity.Property(e => e.AuthorId).HasColumnName("author_id");
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
             entity.Property(e => e.Content).HasColumnName("content");
-            entity.Property(e => e.Ispublished).HasColumnName("ispublished");
-            entity.Property(e => e.Lastupdateddate)
+            entity.Property(e => e.IsPublished).HasColumnName("is_published");
+            entity.Property(e => e.LastUpdatedDate)
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("lastupdateddate");
-            entity.Property(e => e.Publisheddate)
+                .HasColumnName("last_updated_date");
+            entity.Property(e => e.PublishedDate)
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("publisheddate");
+                .HasColumnName("published_date");
             entity.Property(e => e.Tags)
                 .HasMaxLength(255)
                 .HasColumnName("tags");
@@ -66,48 +70,48 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("title");
 
             entity.HasOne(d => d.Author).WithMany(p => p.Blogposts)
-                .HasForeignKey(d => d.Authorid)
-                .HasConstraintName("blogposts_authorid_fkey");
+                .HasForeignKey(d => d.AuthorId)
+                .HasConstraintName("blogposts_author_id_fkey");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Blogposts)
-                .HasForeignKey(d => d.Categoryid)
-                .HasConstraintName("blogposts_categoryid_fkey");
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("blogposts_category_id_fkey");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Categoryid).HasName("categories_pkey");
+            entity.HasKey(e => e.CategoryId).HasName("categories_pkey");
 
             entity.ToTable("categories");
 
-            entity.Property(e => e.Categoryid).HasColumnName("categoryid");
-            entity.Property(e => e.Categoryname)
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.CategoryName)
                 .HasMaxLength(255)
-                .HasColumnName("categoryname");
+                .HasColumnName("category_name");
         });
 
         modelBuilder.Entity<Comment>(entity =>
         {
-            entity.HasKey(e => e.Commentid).HasName("comments_pkey");
+            entity.HasKey(e => e.CommentId).HasName("comments_pkey");
 
             entity.ToTable("comments");
 
-            entity.Property(e => e.Commentid).HasColumnName("commentid");
-            entity.Property(e => e.Commentdate)
+            entity.Property(e => e.CommentId).HasColumnName("comment_id");
+            entity.Property(e => e.CommentDate)
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("commentdate");
-            entity.Property(e => e.Commenteremail)
+                .HasColumnName("comment_date");
+            entity.Property(e => e.CommentText).HasColumnName("comment_text");
+            entity.Property(e => e.CommenterEmail)
                 .HasMaxLength(255)
-                .HasColumnName("commenteremail");
-            entity.Property(e => e.Commentername)
+                .HasColumnName("commenter_email");
+            entity.Property(e => e.CommenterName)
                 .HasMaxLength(255)
-                .HasColumnName("commentername");
-            entity.Property(e => e.Commenttext).HasColumnName("commenttext");
-            entity.Property(e => e.Postid).HasColumnName("postid");
+                .HasColumnName("commenter_name");
+            entity.Property(e => e.PostId).HasColumnName("post_id");
 
             entity.HasOne(d => d.Post).WithMany(p => p.Comments)
-                .HasForeignKey(d => d.Postid)
-                .HasConstraintName("comments_postid_fkey");
+                .HasForeignKey(d => d.PostId)
+                .HasConstraintName("comments_post_id_fkey");
         });
 
         OnModelCreatingPartial(modelBuilder);

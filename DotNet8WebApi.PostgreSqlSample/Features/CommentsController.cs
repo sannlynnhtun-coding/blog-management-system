@@ -1,4 +1,5 @@
 ﻿using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
+using DotNet8WebApi.PostgreSqlSample.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -16,64 +17,66 @@ namespace DotNet8WebApi.PostgreSqlSample.Features
         {
             _context = context;
         }
-
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Comment>>> GetComments()
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetComments()
         {
-            return await _context.Comments
-                //.Include(c => c.Post)
-                .ToListAsync();
+            var comments = await _context.Comments.ToListAsync();
+            return comments.Select(c => c.ToDto()).ToList();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Comment>> GetComment(int id)
+        public async Task<ActionResult<CommentDto>> GetComment(int id)
         {
-            var comment = await _context.Comments
-                .Include(c => c.Post)
-                .FirstOrDefaultAsync(c => c.Commentid == id);
+            var comment = await _context.Comments.FindAsync(id);
 
             if (comment == null)
             {
                 return NotFound();
             }
 
-            return comment;
+            return comment.ToDto();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Comment>> PostComment(Comment comment)
+        public async Task<ActionResult<CommentDto>> PostComment(CommentDto commentDto)
         {
+            var comment = new Comment
+            {
+                PostId = commentDto.PostID,
+                CommenterName = commentDto.CommenterName,
+                CommenterEmail = commentDto.CommenterEmail,
+                CommentText = commentDto.CommentText,
+                CommentDate = commentDto.CommentDate
+            };
+
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetComment", new { id = comment.Commentid }, comment);
+            return CreatedAtAction(nameof(GetComment), new { id = comment.CommentId }, comment.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment(int id, Comment comment)
+        public async Task<IActionResult> PutComment(int id, CommentDto commentDto)
         {
-            if (id != comment.Commentid)
+            if (id != commentDto.CommentID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(comment).State = EntityState.Modified;
+            var comment = await _context.Comments.FindAsync(id);
+            if (comment == null)
+            {
+                return NotFound();
+            }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CommentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            comment.PostId = commentDto.PostID;
+            comment.CommenterName = commentDto.CommenterName;
+            comment.CommenterEmail = commentDto.CommenterEmail;
+            comment.CommentText = commentDto.CommentText;
+            comment.CommentDate = commentDto.CommentDate;
+
+            _context.Entry(comment).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -91,11 +94,6 @@ namespace DotNet8WebApi.PostgreSqlSample.Features
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool CommentExists(int id)
-        {
-            return _context.Comments.Any(e => e.Commentid == id);
         }
     }
 }

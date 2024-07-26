@@ -84,12 +84,6 @@ The API provides the following endpoints:
 
 ---
 
-To scaffold the database context, use the following command:
-
-```
-dotnet ef dbcontext scaffold "Host=localhost;Database=postgres;Username=postgres;Password=sasa@123" Npgsql.EntityFrameworkCore.PostgreSQL -o Models -f
-```
-
 ### Table Script
 
 ```sql
@@ -194,4 +188,11 @@ BEGIN
         );
     END LOOP;
 END $$;
+```
+
+
+To scaffold the database context, use the following command:
+
+```
+dotnet ef dbcontext scaffold "Host=localhost;Database=postgres;Username=postgres;Password=sasa@123" Npgsql.EntityFrameworkCore.PostgreSQL -o AppDbContextModels -c AppDbContext -f
 ```

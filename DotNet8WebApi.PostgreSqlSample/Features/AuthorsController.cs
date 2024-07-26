@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
+using DotNet8WebApi.PostgreSqlSample.Dtos;
 
 namespace BlogAPI.Controllers
 {
@@ -18,13 +19,14 @@ namespace BlogAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
+        public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
         {
-            return await _context.Authors.ToListAsync();
+            var authors = await _context.Authors.ToListAsync();
+            return authors.Select(a => a.ToDto()).ToList();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Author>> GetAuthor(int id)
+        public async Task<ActionResult<AuthorDto>> GetAuthor(int id)
         {
             var author = await _context.Authors.FindAsync(id);
 
@@ -33,43 +35,45 @@ namespace BlogAPI.Controllers
                 return NotFound();
             }
 
-            return author;
+            return author.ToDto();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Author>> PostAuthor(Author author)
+        public async Task<ActionResult<AuthorDto>> PostAuthor(AuthorDto authorDto)
         {
+            var author = new Author
+            {
+                Name = authorDto.Name,
+                Email = authorDto.Email,
+                Bio = authorDto.Bio
+            };
+
             _context.Authors.Add(author);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAuthor", new { id = author.Authorid }, author);
+            return CreatedAtAction(nameof(GetAuthor), new { id = author.AuthorId }, author.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, Author author)
+        public async Task<IActionResult> PutAuthor(int id, AuthorDto authorDto)
         {
-            if (id != author.Authorid)
+            if (id != authorDto.AuthorID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(author).State = EntityState.Modified;
+            var author = await _context.Authors.FindAsync(id);
+            if (author == null)
+            {
+                return NotFound();
+            }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AuthorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            author.Name = authorDto.Name;
+            author.Email = authorDto.Email;
+            author.Bio = authorDto.Bio;
+
+            _context.Entry(author).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -87,11 +91,6 @@ namespace BlogAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool AuthorExists(int id)
-        {
-            return _context.Authors.Any(e => e.Authorid == id);
         }
     }
 }

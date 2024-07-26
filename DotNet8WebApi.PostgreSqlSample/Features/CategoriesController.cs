@@ -1,4 +1,5 @@
 ﻿using DotNet8WebApi.PostgreSqlSample.Database.AppDbContextModels;
+using DotNet8WebApi.PostgreSqlSample.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -18,13 +19,14 @@ namespace DotNet8WebApi.PostgreSqlSample.Features
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            var categories = await _context.Categories.ToListAsync();
+            return categories.Select(c => c.ToDto()).ToList();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<ActionResult<CategoryDto>> GetCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
 
@@ -33,43 +35,41 @@ namespace DotNet8WebApi.PostgreSqlSample.Features
                 return NotFound();
             }
 
-            return category;
+            return category.ToDto();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<CategoryDto>> PostCategory(CategoryDto categoryDto)
         {
+            var category = new Category
+            {
+                CategoryName = categoryDto.CategoryName
+            };
+
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategory", new { id = category.Categoryid }, category);
+            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, category.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, CategoryDto categoryDto)
         {
-            if (id != category.Categoryid)
+            if (id != categoryDto.CategoryID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            category.CategoryName = categoryDto.CategoryName;
+
+            _context.Entry(category).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -77,23 +77,16 @@ namespace DotNet8WebApi.PostgreSqlSample.Features
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
             {
-                var category = await _context.Categories.FindAsync(id);
-                if (category == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Categories.Remove(category);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-        }
 
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.Categoryid == id);
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
