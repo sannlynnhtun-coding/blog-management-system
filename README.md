@@ -1,54 +1,54 @@
-# DotNet8WebApi.PostgreSqlSample\
+# DotNet8WebApi.PostgreSqlSample
 
 ## Overview
 
-BlogAPI is a RESTful Web API built using ASP.NET Core, Entity Framework Core, and PostgreSQL. It provides a platform for managing authors, categories, blog posts, and comments. This API supports basic CRUD (Create, Read, Update, Delete) operations for all the entities involved, allowing for comprehensive blog management.
+The BlogAPI is a RESTful Web API developed using ASP.NET Core, Entity Framework Core, and PostgreSQL. It serves as a platform for managing authors, categories, blog posts, and comments, supporting essential CRUD (Create, Read, Update, Delete) operations for all associated entities. This comprehensive API allows for efficient blog management.
 
 ## Features
 
 - **Authors Management**: Create, read, update, and delete author information.
-- **Categories Management**: Manage categories to classify blog posts.
-- **Blog Posts Management**: Create and manage blog posts, including assigning authors and categories, setting publish dates, and more.
-- **Comments Management**: Handle comments on blog posts, including comment creation, retrieval, and deletion.
+- **Categories Management**: Organize blog posts by creating and managing categories.
+- **Blog Posts Management**: Handle blog post creation and management, including assigning authors and categories, setting publish dates, and more.
+- **Comments Management**: Manage comments on blog posts, including comment creation, retrieval, and deletion.
 
 ## Technologies Used
 
-- **ASP.NET Core**: For building the Web API.
-- **Entity Framework Core**: For ORM (Object Relational Mapping) to interact with the PostgreSQL database.
-- **PostgreSQL**: As the database system.
+- **ASP.NET Core**: Framework for building the Web API.
+- **Entity Framework Core**: ORM (Object-Relational Mapping) to interact with the PostgreSQL database.
+- **PostgreSQL**: Database system.
 
 ## Database Schema
 
-The database schema consists of the following tables:
+The database schema includes the following tables:
 
 1. **Authors**
     - `AuthorID`: Primary key.
-    - `Name`: The name of the author.
-    - `Email`: The email of the author.
-    - `Bio`: A short biography of the author.
+    - `Name`: Author's name.
+    - `Email`: Author's email.
+    - `Bio`: Short biography of the author.
 
 2. **Categories**
     - `CategoryID`: Primary key.
-    - `CategoryName`: The name of the category.
+    - `CategoryName`: Name of the category.
 
 3. **BlogPosts**
     - `PostID`: Primary key.
-    - `Title`: The title of the blog post.
-    - `Content`: The content of the blog post.
+    - `Title`: Title of the blog post.
+    - `Content`: Content of the blog post.
     - `AuthorID`: Foreign key referencing `Authors`.
     - `CategoryID`: Foreign key referencing `Categories`.
-    - `PublishedDate`: The date the post was published.
-    - `LastUpdatedDate`: The date the post was last updated.
+    - `PublishedDate`: Date the post was published.
+    - `LastUpdatedDate`: Date the post was last updated.
     - `IsPublished`: Boolean flag indicating if the post is published.
     - `Tags`: Tags associated with the post.
 
 4. **Comments**
     - `CommentID`: Primary key.
     - `PostID`: Foreign key referencing `BlogPosts`.
-    - `CommenterName`: The name of the commenter.
-    - `CommenterEmail`: The email of the commenter.
-    - `CommentText`: The comment text.
-    - `CommentDate`: The date the comment was made.
+    - `CommenterName`: Name of the commenter.
+    - `CommenterEmail`: Email of the commenter.
+    - `CommentText`: Text of the comment.
+    - `CommentDate`: Date the comment was made.
 
 ## API Endpoints
 
@@ -84,17 +84,15 @@ The API provides the following endpoints:
 
 ---
 
+To scaffold the database context, use the following command:
 
 ```
-
 dotnet ef dbcontext scaffold "Host=localhost;Database=postgres;Username=postgres;Password=sasa@123" Npgsql.EntityFrameworkCore.PostgreSQL -o Models -f
-
 ```
 
 ### Table Script
 
 ```sql
-
 CREATE TABLE Authors (
     AuthorID SERIAL PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
@@ -130,13 +128,11 @@ CREATE TABLE Comments (
     CommentDate TIMESTAMP,
     FOREIGN KEY (PostID) REFERENCES BlogPosts(PostID)
 );
-
 ```
 
 ### Insert Script
 
 ```sql
-
 -- Truncate tables
 TRUNCATE TABLE Comments, BlogPosts, Authors, Categories RESTART IDENTITY CASCADE;
 
@@ -198,6 +194,4 @@ BEGIN
         );
     END LOOP;
 END $$;
-
-
 ```
